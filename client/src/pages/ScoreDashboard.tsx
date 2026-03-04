@@ -75,11 +75,51 @@ function getScoreLabel(score: number) {
   return "Continue praticando";
 }
 
+type AudioContextWithWebkit = typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+function playCounterTick(audioContext: AudioContext) {
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "square";
+  oscillator.frequency.setValueAtTime(1240, now);
+  oscillator.frequency.exponentialRampToValueAtTime(820, now + 0.045);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.1, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+
+  oscillator.start(now);
+  oscillator.stop(now + 0.08);
+}
+
+function createAudioContext() {
+  if (globalThis.window === undefined) {
+    return null;
+  }
+
+  const scopedWindow = globalThis as AudioContextWithWebkit;
+  const Ctor = scopedWindow.AudioContext ?? scopedWindow.webkitAudioContext;
+
+  if (!Ctor) {
+    return null;
+  }
+
+  return new Ctor();
+}
+
 export default function ScoreDashboard() {
   const [, setLocation] = useLocation();
   const [countdown, setCountdown] = useState(5);
   const [isRecord, setIsRecord] = useState(false);
   const [isPartyActive, setIsPartyActive] = useState(true);
+  const [displayScore, setDisplayScore] = useState(0);
   const scoreData = useMemo(parseScoreData, []);
 
   useEffect(() => {
@@ -89,6 +129,56 @@ export default function ScoreDashboard() {
       localStorage.setItem(BEST_SCORE_KEY, String(scoreData.score));
     }
     setIsRecord(hasRecord);
+  }, [scoreData.score]);
+
+  useEffect(() => {
+    const finalScore = Math.max(0, scoreData.score);
+
+    if (finalScore === 0) {
+      setDisplayScore(0);
+      return;
+    }
+
+    const audioContext = createAudioContext();
+    if (audioContext?.state === "suspended") {
+      void audioContext.resume();
+    }
+
+    const minTickMs = 14;
+    const maxTickMs = 62;
+    let currentValue = 0;
+    let timeoutId: number | null = null;
+
+    setDisplayScore(0);
+
+    const scheduleNextTick = () => {
+      currentValue += 1;
+      setDisplayScore(currentValue);
+
+      if (audioContext) {
+        playCounterTick(audioContext);
+      }
+
+      if (currentValue >= finalScore) {
+        return;
+      }
+
+      const progress = currentValue / finalScore;
+      const dramaticProgress = progress * progress;
+      const nextDelay = Math.round(minTickMs + (maxTickMs - minTickMs) * dramaticProgress);
+      timeoutId = globalThis.setTimeout(scheduleNextTick, nextDelay);
+    };
+
+    timeoutId = globalThis.setTimeout(scheduleNextTick, minTickMs);
+
+    return () => {
+      if (timeoutId !== null) {
+        globalThis.clearTimeout(timeoutId);
+      }
+      if (audioContext) {
+        void audioContext.close();
+      }
+    };
   }, [scoreData.score]);
 
   useEffect(() => {
@@ -264,7 +354,7 @@ export default function ScoreDashboard() {
 
           <div className="text-center mb-8">
             <div className="text-7xl md:text-8xl font-black text-primary leading-none">
-              {scoreData.score}
+              {displayScore}
             </div>
             <p className="text-xl font-bold text-secondary mt-2">{scoreLabel}</p>
             {isRecord ? (

@@ -300,7 +300,6 @@ export default function Player() {
         onEnded={() => {
           setIsPlaying(false);
           const summary = finalizeScoring();
-          stopMicrophone(false);
           goToScoreDashboard(summary);
         }}
         onMouseMove={revealControls}
