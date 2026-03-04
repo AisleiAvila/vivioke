@@ -4,7 +4,7 @@ import { Link } from "wouter";
 
 export default function Welcome() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 dark:from-purple-950 dark:via-purple-900 dark:to-blue-950 flex flex-col items-center justify-center px-4 py-12">
+    <div className="relative min-h-screen vivioke-party-bg flex flex-col items-center justify-center px-4 py-12">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
@@ -18,7 +18,7 @@ export default function Welcome() {
         <div className="mb-8 animate-bounce" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center justify-center gap-3 mb-4">
             <Music className="w-12 h-12 text-purple-600 dark:text-purple-400" />
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-black vivioke-title-gradient">
               Vivioke
             </h1>
             <Mic2 className="w-12 h-12 text-pink-600 dark:text-pink-400" />
@@ -33,42 +33,50 @@ export default function Welcome() {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="bg-white/80 dark:bg-purple-900/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-purple-200 dark:border-purple-700 hover:shadow-lg transition-shadow">
-            <Music className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-3" />
-            <h3 className="font-bold text-lg text-purple-900 dark:text-purple-100 mb-2">
+          <div className="vivioke-surface rounded-2xl p-6 hover:shadow-xl transition-shadow">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
+              <Music className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="font-bold text-lg text-foreground mb-2">
               Centenas de Músicas
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-foreground/80">
               Escolha entre seus sucessos favoritos
             </p>
           </div>
 
-          <div className="bg-white/80 dark:bg-pink-900/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-pink-200 dark:border-pink-700 hover:shadow-lg transition-shadow">
-            <Mic2 className="w-8 h-8 text-pink-600 dark:text-pink-400 mx-auto mb-3" />
-            <h3 className="font-bold text-lg text-pink-900 dark:text-pink-100 mb-2">
+          <div className="vivioke-surface rounded-2xl p-6 hover:shadow-xl transition-shadow">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-secondary/25">
+              <Mic2 className="w-7 h-7 text-secondary" />
+            </div>
+            <h3 className="font-bold text-lg text-foreground mb-2">
               Cante ao Vivo
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-foreground/80">
               Use seu microfone e cante com a música
             </p>
           </div>
 
-          <div className="bg-white/80 dark:bg-blue-900/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-blue-200 dark:border-blue-700 hover:shadow-lg transition-shadow">
-            <Sparkles className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
-            <h3 className="font-bold text-lg text-blue-900 dark:text-blue-100 mb-2">
+          <div className="vivioke-surface rounded-2xl p-6 hover:shadow-xl transition-shadow">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-chart-4/24">
+              <Sparkles className="w-7 h-7 text-chart-4" />
+            </div>
+            <h3 className="font-bold text-lg text-foreground mb-2">
               Pontuação Inteligente
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-foreground/80">
               IA analisa seu canto e dá feedback
             </p>
           </div>
 
-          <div className="bg-white/80 dark:bg-green-900/50 backdrop-blur-sm rounded-2xl p-6 border-2 border-green-200 dark:border-green-700 hover:shadow-lg transition-shadow">
-            <Users className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-3" />
-            <h3 className="font-bold text-lg text-green-900 dark:text-green-100 mb-2">
+          <div className="vivioke-surface rounded-2xl p-6 hover:shadow-xl transition-shadow">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-chart-3/24">
+              <Users className="w-7 h-7 text-chart-3" />
+            </div>
+            <h3 className="font-bold text-lg text-foreground mb-2">
               Diversão em Família
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-foreground/80">
               Perfeito para confraternizações
             </p>
           </div>
@@ -79,7 +87,7 @@ export default function Welcome() {
           <Link href="/songs">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+              className="vivioke-cta hover:brightness-110 text-white font-bold text-lg px-8 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
             >
               Começar a Cantar 🎤
             </Button>

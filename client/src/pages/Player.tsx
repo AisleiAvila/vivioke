@@ -273,24 +273,24 @@ export default function Player() {
 
   if (isLoadingSong) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950 dark:via-purple-900 dark:to-blue-950 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-purple-600 dark:text-purple-400" />
+      <div className="min-h-screen vivioke-party-bg flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!song) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950 dark:via-purple-900 dark:to-blue-950 flex items-center justify-center">
+      <div className="min-h-screen vivioke-party-bg flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-600 dark:text-gray-400">Música não encontrada</h1>
+          <h1 className="text-2xl font-bold text-muted-foreground">Música não encontrada</h1>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen vivioke-party-bg relative overflow-hidden">
       {/* Media Element */}
       <video
         ref={mediaRef}
@@ -318,9 +318,11 @@ export default function Player() {
         />
       </video>
 
+      <div className="pointer-events-none absolute inset-0 z-10 vivioke-party-overlay" />
+
       {/* Header */}
       <div
-        className={`absolute top-4 left-4 z-20 transition-opacity duration-200 ${
+        className={`absolute top-4 left-4 z-30 transition-opacity duration-200 ${
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -334,7 +336,7 @@ export default function Player() {
 
       {/* Top Controls Overlay */}
       <div
-        className={`absolute top-2 left-1/2 -translate-x-1/2 z-20 w-[min(88vw,500px)] transition-opacity duration-200 ${
+        className={`absolute top-2 left-1/2 -translate-x-1/2 z-30 w-[min(88vw,500px)] transition-opacity duration-200 ${
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -357,7 +359,7 @@ export default function Player() {
             <Button
               size="sm"
               onClick={handlePlayPause}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-full w-9 h-9"
+              className="vivioke-cta hover:brightness-110 text-white font-bold rounded-full w-9 h-9"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
             </Button>

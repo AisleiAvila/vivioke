@@ -166,7 +166,7 @@ async function loadLocalSongsFromMedia(): Promise<LocalSong[]> {
       artist: currentArtist.trim(),
       album: null,
       duration: 0,
-      instrumentalUrl: `/media/${currentFile.trim()}`,
+      instrumentalUrl: `/media/${encodeURIComponent(currentFile.trim())}`,
       originalUrl: null,
       coverImageUrl: null,
       genre: null,

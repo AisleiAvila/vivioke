@@ -3,12 +3,17 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Music, Loader2, ChevronLeft } from "lucide-react";
+import { Search, Music, Loader2, ChevronLeft, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Link } from "wouter";
+
+type SortField = "code" | "title" | "artist";
+type SortDirection = "asc" | "desc";
 
 export default function SongList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState<SortField>("code");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const pageSize = 10;
 
   const normalizeText = (value: string) =>
@@ -54,11 +59,25 @@ export default function SongList() {
     }
 
     return [...results].sort((a, b) => {
-      const aNumber = extractSongNumber(a.instrumentalUrl, a.id);
-      const bNumber = extractSongNumber(b.instrumentalUrl, b.id);
-      return aNumber.localeCompare(bNumber, undefined, { numeric: true });
+      const directionMultiplier = sortDirection === "asc" ? 1 : -1;
+
+      if (sortField === "code") {
+        const aCode = extractSongNumber(a.instrumentalUrl, a.id);
+        const bCode = extractSongNumber(b.instrumentalUrl, b.id);
+        return aCode.localeCompare(bCode, undefined, { numeric: true }) * directionMultiplier;
+      }
+
+      if (sortField === "title") {
+        const aTitle = normalizeText(a.title);
+        const bTitle = normalizeText(b.title);
+        return aTitle.localeCompare(bTitle) * directionMultiplier;
+      }
+
+      const aArtist = normalizeText(a.artist);
+      const bArtist = normalizeText(b.artist);
+      return aArtist.localeCompare(bArtist) * directionMultiplier;
     });
-  }, [songs, searchQuery]);
+  }, [songs, searchQuery, sortField, sortDirection]);
 
   const paginatedSongs = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -83,8 +102,47 @@ export default function SongList() {
     setCurrentPage((page) => Math.min(totalPages, page + 1));
   };
 
+  const handleSortChange = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortField(field);
+    setSortDirection("asc");
+  };
+
+  const renderSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />;
+    }
+
+    if (sortDirection === "asc") {
+      return <ArrowUp className="w-3.5 h-3.5 text-primary" />;
+    }
+
+    return <ArrowDown className="w-3.5 h-3.5 text-primary" />;
+  };
+
+  const getSortHeaderClassName = (field: SortField) => {
+    const baseClass = "flex items-center gap-1 text-left rounded-md px-2 py-1 transition-colors";
+    if (sortField === field) {
+      return `${baseClass} bg-primary/12 text-primary`;
+    }
+
+    return `${baseClass} text-foreground/90 hover:bg-primary/8`;
+  };
+
+  const getAriaSort = (field: SortField): "none" | "ascending" | "descending" => {
+    if (sortField !== field) {
+      return "none";
+    }
+
+    return sortDirection === "asc" ? "ascending" : "descending";
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950 dark:via-purple-900 dark:to-blue-950 py-8 px-4">
+    <div className="min-h-screen vivioke-party-bg py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -94,7 +152,7 @@ export default function SongList() {
               Voltar
             </Button>
           </Link>
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl md:text-5xl font-black vivioke-title-gradient mb-2">
             Escolha uma Música
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
@@ -103,16 +161,16 @@ export default function SongList() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white dark:bg-purple-900/50 backdrop-blur-sm rounded-2xl p-6 border border-purple-200 dark:border-purple-700 mb-8 shadow-lg">
+        <div className="vivioke-surface rounded-2xl p-6 mb-8 shadow-lg">
           <div className="flex flex-col gap-4">
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
               <Input
                 placeholder="Buscar por número, música ou artista..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 py-2 text-base rounded-lg border-2 border-purple-200 dark:border-purple-700 focus:border-purple-600 dark:focus:border-purple-400"
+                className="pl-10 py-2 text-base rounded-lg border-input focus-visible:ring-ring"
               />
             </div>
           </div>
@@ -127,29 +185,53 @@ export default function SongList() {
 
         {/* Songs List */}
         {!isLoading && filteredSongs.length > 0 && (
-          <Card className="border-2 border-purple-200 dark:border-purple-700 bg-white dark:bg-purple-900/50 backdrop-blur-sm overflow-hidden">
-            <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-purple-100/80 dark:bg-purple-900/70 text-sm font-bold text-purple-900 dark:text-purple-100">
-              <span>Número</span>
-              <span>Artista</span>
-              <span>Música</span>
+          <Card className="vivioke-surface overflow-hidden">
+            <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-primary/14 text-sm font-bold text-foreground">
+              <button
+                type="button"
+                className={getSortHeaderClassName("code")}
+                onClick={() => handleSortChange("code")}
+                aria-sort={getAriaSort("code")}
+              >
+                <span>Código</span>
+                {renderSortIcon("code")}
+              </button>
+              <button
+                type="button"
+                className={getSortHeaderClassName("title")}
+                onClick={() => handleSortChange("title")}
+                aria-sort={getAriaSort("title")}
+              >
+                <span>Música</span>
+                {renderSortIcon("title")}
+              </button>
+              <button
+                type="button"
+                className={getSortHeaderClassName("artist")}
+                onClick={() => handleSortChange("artist")}
+                aria-sort={getAriaSort("artist")}
+              >
+                <span>Artista</span>
+                {renderSortIcon("artist")}
+              </button>
             </div>
 
-            <div className="divide-y divide-purple-200 dark:divide-purple-800">
+            <div className="divide-y divide-border">
               {paginatedSongs.map((song) => (
                 <Link key={song.id} href={`/player/${song.id}`}>
-                  <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 items-center hover:bg-purple-50 dark:hover:bg-purple-800/40 transition-colors cursor-pointer">
-                    <span className="font-mono text-sm text-purple-800 dark:text-purple-100">
+                  <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 items-center hover:bg-accent/25 transition-colors cursor-pointer">
+                    <span className="font-mono text-sm text-primary">
                       {extractSongNumber(song.instrumentalUrl, song.id)}
                     </span>
-                    <span className="text-gray-800 dark:text-gray-200 truncate">{song.artist}</span>
-                    <span className="text-gray-800 dark:text-gray-200 truncate">{song.title}</span>
+                    <span className="text-foreground truncate">{song.title}</span>
+                    <span className="text-foreground truncate">{song.artist}</span>
                   </div>
                 </Link>
               ))}
             </div>
 
-            <div className="flex items-center justify-between px-4 py-3 border-t border-purple-200 dark:border-purple-800">
-              <span className="text-sm text-gray-600 dark:text-gray-300">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <span className="text-sm text-muted-foreground">
                 Página {currentPage} de {totalPages}
               </span>
               <div className="flex gap-2">

@@ -77,6 +77,41 @@
   --sidebar-accent-foreground: oklch(0.98 0.001 0);
   --sidebar-border: oklch(0.85 0.005 280);
   --sidebar-ring: oklch(0.65 0.22 280);
+  --vivioke-bg-from: oklch(0.64 0.31 304);
+  --vivioke-bg-via: oklch(0.62 0.34 348);
+  --vivioke-bg-to: oklch(0.58 0.28 242);
+  --vivioke-surface: oklch(1 0 0 / 0.62);
+  --vivioke-surface-border: oklch(0.88 0.26 330 / 0.34);
+  --vivioke-title-from: oklch(0.62 0.24 289);
+  --vivioke-title-via: oklch(0.64 0.24 349);
+  --vivioke-title-to: oklch(0.65 0.2 240);
+  --vivioke-glow-1: oklch(0.86 0.31 336 / 0.62);
+  --vivioke-glow-2: oklch(0.89 0.27 248 / 0.56);
+  --vivioke-glow-3: oklch(0.9 0.25 152 / 0.44);
+  --vivioke-pattern-notes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.26' stroke-width='3'%3E%3Cpath d='M52 280V150l90-20v130'/%3E%3Ccircle cx='52' cy='286' r='16' fill='%23ffffff' fill-opacity='0.2'/%3E%3Ccircle cx='142' cy='266' r='16' fill='%23ffffff' fill-opacity='0.16'/%3E%3Cpath d='M302 210V100l78-18v108'/%3E%3Ccircle cx='302' cy='214' r='14' fill='%23ffffff' fill-opacity='0.2'/%3E%3Ccircle cx='380' cy='198' r='14' fill='%23ffffff' fill-opacity='0.16'/%3E%3Cpath d='M178 84c20-18 44-16 62 6'/%3E%3Cpath d='M194 56c28-24 62-22 86 6'/%3E%3C/g%3E%3C/svg%3E");
+  --vivioke-pattern-party: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 420'%3E%3Cg fill='%23ffffff' fill-opacity='0.2'%3E%3Ccircle cx='50' cy='68' r='7'/%3E%3Ccircle cx='136' cy='44' r='6'/%3E%3Ccircle cx='206' cy='76' r='5'/%3E%3Ccircle cx='296' cy='60' r='7'/%3E%3Ccircle cx='370' cy='86' r='5'/%3E%3Crect x='84' y='160' width='12' height='18' rx='3' transform='rotate(18 90 169)'/%3E%3Crect x='220' y='140' width='12' height='18' rx='3' transform='rotate(-22 226 149)'/%3E%3Crect x='330' y='176' width='12' height='18' rx='3' transform='rotate(14 336 185)'/%3E%3Cpath d='M24 244c30-22 58-22 86 0s56 22 84 0 56-22 84 0 56 22 84 0 56-22 84 0' stroke='%23ffffff' stroke-opacity='0.2' stroke-width='5' fill='none'/%3E%3Cpath d='M36 316c22-16 40-16 62 0s40 16 62 0 40-16 62 0 40 16 62 0 40-16 62 0' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='4' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+:root[data-party-theme="neon"] {
+  --vivioke-bg-from: oklch(0.64 0.31 304);
+  --vivioke-bg-via: oklch(0.62 0.34 348);
+  --vivioke-bg-to: oklch(0.58 0.28 242);
+  --vivioke-glow-1: oklch(0.86 0.31 336 / 0.62);
+  --vivioke-glow-2: oklch(0.89 0.27 248 / 0.56);
+  --vivioke-glow-3: oklch(0.9 0.25 152 / 0.44);
+  --vivioke-surface: oklch(1 0 0 / 0.62);
+  --vivioke-surface-border: oklch(0.88 0.26 330 / 0.34);
+}
+
+:root[data-party-theme="sunset"] {
+  --vivioke-bg-from: oklch(0.78 0.29 45);
+  --vivioke-bg-via: oklch(0.72 0.31 24);
+  --vivioke-bg-to: oklch(0.64 0.29 332);
+  --vivioke-glow-1: oklch(0.9 0.25 62 / 0.6);
+  --vivioke-glow-2: oklch(0.86 0.3 28 / 0.54);
+  --vivioke-glow-3: oklch(0.84 0.26 342 / 0.46);
+  --vivioke-surface: oklch(1 0 0 / 0.64);
+  --vivioke-surface-border: oklch(0.9 0.2 34 / 0.3);
 }
 
 .dark {
@@ -112,6 +147,17 @@
   --sidebar-accent-foreground: oklch(0.98 0.001 0);
   --sidebar-border: oklch(0.3 0.01 280);
   --sidebar-ring: oklch(0.7 0.22 280);
+  --vivioke-bg-from: oklch(0.23 0.07 295);
+  --vivioke-bg-via: oklch(0.22 0.08 340);
+  --vivioke-bg-to: oklch(0.21 0.07 250);
+  --vivioke-surface: oklch(0.22 0.03 285 / 0.66);
+  --vivioke-surface-border: oklch(0.72 0.18 295 / 0.28);
+  --vivioke-title-from: oklch(0.76 0.2 288);
+  --vivioke-title-via: oklch(0.78 0.2 344);
+  --vivioke-title-to: oklch(0.76 0.18 244);
+  --vivioke-glow-1: oklch(0.7 0.24 332 / 0.45);
+  --vivioke-glow-2: oklch(0.7 0.2 250 / 0.38);
+  --vivioke-glow-3: oklch(0.74 0.2 130 / 0.3);
 }
 
 @layer base {
@@ -161,6 +207,114 @@
     min-width: 0;
   }
 
+  .vivioke-page-bg {
+    background-image: linear-gradient(
+      135deg,
+      var(--vivioke-bg-from) 0%,
+      var(--vivioke-bg-via) 52%,
+      var(--vivioke-bg-to) 100%
+    );
+  }
+
+  .vivioke-party-bg {
+    background-color: transparent;
+    background-image:
+      radial-gradient(circle at 12% 16%, color-mix(in oklab, var(--vivioke-glow-1) 68%, transparent) 0%, transparent 42%),
+      radial-gradient(circle at 85% 20%, color-mix(in oklab, var(--vivioke-glow-2) 64%, transparent) 0%, transparent 40%),
+      radial-gradient(circle at 52% 86%, color-mix(in oklab, var(--vivioke-glow-3) 64%, transparent) 0%, transparent 46%),
+      var(--vivioke-pattern-party),
+      var(--vivioke-pattern-notes),
+      linear-gradient(
+        135deg,
+        color-mix(in oklab, var(--vivioke-bg-from) 42%, transparent) 0%,
+        color-mix(in oklab, var(--vivioke-bg-via) 36%, transparent) 52%,
+        color-mix(in oklab, var(--vivioke-bg-to) 42%, transparent) 100%
+      );
+    background-size: 140% 140%, 140% 140%, 140% 140%, 520px 520px, 560px 560px, 100% 100%;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat;
+    background-position: 0% 0%, 100% 0%, 50% 100%, center, center, center;
+    background-blend-mode: screen, screen, screen, overlay, soft-light, normal;
+    animation: viviokePartyDrift 18s ease-in-out infinite alternate;
+  }
+
+  .vivioke-party-overlay {
+    background-image:
+      radial-gradient(circle at 16% 18%, oklch(0.96 0.28 340 / 0.35) 0%, transparent 44%),
+      radial-gradient(circle at 84% 22%, oklch(0.94 0.28 248 / 0.32) 0%, transparent 43%),
+      var(--vivioke-pattern-notes),
+      var(--vivioke-pattern-party);
+    background-size: 130% 130%, 130% 130%, 520px 520px, 460px 460px;
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+    background-position: 0% 0%, 100% 0%, center, center;
+    mix-blend-mode: screen;
+    opacity: 0.9;
+    animation: viviokePartyDrift 14s ease-in-out infinite alternate-reverse;
+  }
+
+  .vivioke-global-party-fx {
+    background-image:
+      radial-gradient(circle at 8% 18%, oklch(0.96 0.32 334 / 0.34) 0%, transparent 18%),
+      radial-gradient(circle at 92% 16%, oklch(0.94 0.28 248 / 0.3) 0%, transparent 20%),
+      radial-gradient(circle at 50% 92%, oklch(0.92 0.28 152 / 0.24) 0%, transparent 22%),
+      var(--vivioke-pattern-party);
+    background-size: 120% 120%, 120% 120%, 120% 120%, 360px 360px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-position: 0% 0%, 100% 0%, 50% 100%, center;
+    mix-blend-mode: plus-lighter;
+    opacity: 0.54;
+    animation: viviokePartyFloat 9s ease-in-out infinite alternate;
+  }
+
+  .vivioke-content-layer {
+    min-height: 100vh;
+    background: linear-gradient(
+      180deg,
+      oklch(0.99 0.01 320 / 0.08) 0%,
+      oklch(0.99 0.01 320 / 0.03) 35%,
+      oklch(0.99 0.01 320 / 0.08) 100%
+    );
+    backdrop-filter: blur(0.5px);
+  }
+
+  .vivioke-artist-photo-fx {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.42;
+    filter: saturate(1.08) contrast(1.03);
+    transform: scale(1.04);
+    animation: viviokeArtistPan 26s ease-in-out infinite alternate;
+  }
+
+  .vivioke-title-gradient {
+    background-image: linear-gradient(
+      95deg,
+      var(--vivioke-title-from) 0%,
+      var(--vivioke-title-via) 50%,
+      var(--vivioke-title-to) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .vivioke-surface {
+    background-color: var(--vivioke-surface);
+    border: 1px solid var(--vivioke-surface-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 28px oklch(0.28 0.15 290 / 0.18);
+  }
+
+  .vivioke-cta {
+    background-image: linear-gradient(
+      90deg,
+      var(--vivioke-title-from) 0%,
+      var(--vivioke-title-via) 55%,
+      var(--vivioke-title-to) 100%
+    );
+    color: var(--primary-foreground);
+  }
+
   @media (min-width: 640px) {
     .container {
       padding-left: 1.5rem; /* 24px - tablet padding */
@@ -174,5 +328,34 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+}
+
+@keyframes viviokePartyDrift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, center, center, center;
+  }
+  100% {
+    background-position: 12% 14%, 88% 10%, 54% 86%, center, center, center;
+  }
+}
+
+@keyframes viviokePartyFloat {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, center;
+    opacity: 0.52;
+  }
+  100% {
+    background-position: 9% 10%, 91% 8%, 53% 88%, center;
+    opacity: 0.74;
+  }
+}
+
+@keyframes viviokeArtistPan {
+  0% {
+    background-position: 46% 50%;
+  }
+  100% {
+    background-position: 54% 50%;
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
 
 type ScoreData = {
   score: number;
@@ -12,6 +13,35 @@ type ScoreData = {
 };
 
 const RESULT_EMOJIS = ["🎉", "🎊", "🎈", "🎵", "🎶", "✨", "🥳"];
+const BEST_SCORE_KEY = "vivioke-best-score";
+const PARTY_MODE_DURATION_MS = 4600;
+const LIGHT_BURST_BASE = [
+  { size: 240, delay: 0, color: "bg-primary/40" },
+  { size: 360, delay: 0.1, color: "bg-secondary/35" },
+  { size: 500, delay: 0.2, color: "bg-accent/28" },
+];
+
+function getConfettiColorClass(index: number) {
+  const palette = ["bg-primary", "bg-secondary", "bg-accent", "bg-chart-4", "bg-chart-5"];
+  return palette[index % palette.length];
+}
+
+const CONFETTI_BASE = Array.from({ length: 44 }, (_, index) => ({
+  id: index,
+  left: `${(index * 9) % 100}%`,
+  delay: (index % 11) * 0.06,
+  duration: 2.1 + (index % 7) * 0.18,
+  rotate: (index % 2 === 0 ? 1 : -1) * (90 + index * 8),
+  colorClass: getConfettiColorClass(index),
+}));
+
+const SPARKLE_BASE = Array.from({ length: 18 }, (_, index) => ({
+  id: index,
+  left: `${6 + (index % 6) * 16}%`,
+  top: `${10 + Math.floor(index / 6) * 28}%`,
+  delay: (index % 7) * 0.12,
+  size: index % 3 === 0 ? 7 : 5,
+}));
 
 function parseScoreData(): ScoreData {
   if (globalThis.window === undefined) {
@@ -48,9 +78,24 @@ function getScoreLabel(score: number) {
 export default function ScoreDashboard() {
   const [, setLocation] = useLocation();
   const [countdown, setCountdown] = useState(5);
+  const [isRecord, setIsRecord] = useState(false);
+  const [isPartyActive, setIsPartyActive] = useState(true);
   const scoreData = useMemo(parseScoreData, []);
 
   useEffect(() => {
+    const previousBest = Number.parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? "0", 10) || 0;
+    const hasRecord = scoreData.score > previousBest;
+    if (hasRecord) {
+      localStorage.setItem(BEST_SCORE_KEY, String(scoreData.score));
+    }
+    setIsRecord(hasRecord);
+  }, [scoreData.score]);
+
+  useEffect(() => {
+    const partyTimerId = globalThis.setTimeout(() => {
+      setIsPartyActive(false);
+    }, PARTY_MODE_DURATION_MS);
+
     const timeoutId = globalThis.setTimeout(() => {
       setLocation("/songs");
     }, 5000);
@@ -60,15 +105,136 @@ export default function ScoreDashboard() {
     }, 1000);
 
     return () => {
+      globalThis.clearTimeout(partyTimerId);
       globalThis.clearTimeout(timeoutId);
       globalThis.clearInterval(intervalId);
     };
   }, [setLocation]);
 
   const scoreLabel = getScoreLabel(scoreData.score);
+  let confettiParticles = [
+    ...CONFETTI_BASE,
+    ...CONFETTI_BASE.map((item) => ({
+      ...item,
+      id: item.id + 300,
+      left: `${(Number.parseFloat(item.left) + 7) % 100}%`,
+      delay: item.delay + 0.26,
+      duration: item.duration + 0.22,
+      rotate: item.rotate * -0.9,
+    })),
+  ];
+
+  if (isRecord) {
+    confettiParticles = [
+      ...CONFETTI_BASE,
+      ...CONFETTI_BASE.map((item) => ({
+        ...item,
+        id: item.id + 100,
+        left: `${(Number.parseFloat(item.left) + 5) % 100}%`,
+        delay: item.delay + 0.15,
+        duration: item.duration + 0.2,
+        rotate: item.rotate * -1,
+      })),
+      ...CONFETTI_BASE.map((item) => ({
+        ...item,
+        id: item.id + 200,
+        left: `${(Number.parseFloat(item.left) + 11) % 100}%`,
+        delay: item.delay + 0.38,
+        duration: item.duration + 0.45,
+        rotate: item.rotate * 1.25,
+      })),
+    ];
+  }
+
+  let burstLayers = [...LIGHT_BURST_BASE];
+  if (isRecord) {
+    burstLayers = [...LIGHT_BURST_BASE, { size: 620, delay: 0.28, color: "bg-chart-5/30" }];
+  }
+
+  let burstRepeatCount = 0;
+  let sparkleRepeatCount = 0;
+  let confettiRepeatCount = 0;
+
+  if (isPartyActive) {
+    if (isRecord) {
+      burstRepeatCount = 3;
+      sparkleRepeatCount = 6;
+      confettiRepeatCount = 2;
+    } else {
+      burstRepeatCount = 2;
+      sparkleRepeatCount = 4;
+      confettiRepeatCount = 1;
+    }
+  }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950 dark:via-purple-900 dark:to-blue-950 py-8 px-4">
+    <div className="relative min-h-screen overflow-hidden vivioke-party-bg py-8 px-4">
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <AnimatePresence>
+          {burstLayers.map((layer, index) => (
+            <motion.div
+              key={`burst-${layer.size}-${index}`}
+              className={`absolute left-1/2 top-[46%] rounded-full blur-3xl ${layer.color}`}
+              style={{ width: layer.size, height: layer.size, marginLeft: -layer.size / 2, marginTop: -layer.size / 2 }}
+              initial={{ opacity: 0, scale: 0.3 }}
+              animate={{ opacity: [0, 1, 0.35, 0], scale: [0.3, 1.12, 1.28, 1.55] }}
+              transition={{
+                duration: 1.45,
+                delay: layer.delay,
+                ease: "easeOut",
+                repeat: burstRepeatCount,
+                repeatDelay: isRecord ? 0.15 : 0.22,
+              }}
+            />
+          ))}
+        </AnimatePresence>
+
+        {SPARKLE_BASE.map((sparkle) => (
+          <motion.div
+            key={`sparkle-${sparkle.id}`}
+            className="absolute rounded-full bg-white/85 shadow-[0_0_24px_6px_rgba(255,255,255,0.45)]"
+            style={{
+              left: sparkle.left,
+              top: sparkle.top,
+              width: sparkle.size,
+              height: sparkle.size,
+            }}
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{ opacity: [0, 0.85, 0], scale: [0.4, 1.2, 0.5] }}
+            transition={{
+              duration: 0.85,
+              delay: sparkle.delay,
+              ease: "easeOut",
+              repeat: sparkleRepeatCount,
+              repeatDelay: 0.1,
+            }}
+          />
+        ))}
+
+        {confettiParticles.map((particle) => (
+          <motion.div
+            key={`confetti-${particle.id}`}
+            className={`absolute top-[-14%] h-3.5 w-2.5 rounded-sm ${particle.colorClass}`}
+            style={{ left: particle.left }}
+            initial={{ opacity: 0, y: -40, rotate: 0, scale: 0.9 }}
+            animate={{
+              opacity: [0, 1, 1, 0],
+              y: [0, 190, 410, 740],
+              x: [0, (particle.id % 2 === 0 ? 1 : -1) * 26, (particle.id % 2 === 0 ? -1 : 1) * 18],
+              rotate: [0, particle.rotate, particle.rotate * 1.9],
+              scale: [0.9, 1.1, 0.95, 0.85],
+            }}
+            transition={{
+              duration: particle.duration,
+              delay: particle.delay,
+              ease: "easeInOut",
+              repeat: confettiRepeatCount,
+              repeatDelay: isRecord ? 0.08 : 0.14,
+            }}
+          />
+        ))}
+      </div>
+
       {RESULT_EMOJIS.map((emoji, index) => (
         <div
           key={`${emoji}-${index}`}
@@ -85,22 +251,32 @@ export default function ScoreDashboard() {
       ))}
 
       <div className="max-w-3xl mx-auto relative z-10">
-        <Card className="border-2 border-purple-200 dark:border-purple-700 bg-white/90 dark:bg-purple-900/80 backdrop-blur-sm shadow-2xl p-8 md:p-10">
+        <Card className="vivioke-surface shadow-2xl p-8 md:p-10">
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-300 dark:via-pink-300 dark:to-blue-300 bg-clip-text text-transparent mb-3">
+            <h1 className="text-4xl md:text-5xl font-black vivioke-title-gradient mb-3">
               Resultado da Performance
             </h1>
-            <p className="text-gray-700 dark:text-gray-300 text-lg">
+            <p className="text-foreground/85 text-lg">
               {scoreData.songTitle || "Música"}
               {scoreData.songArtist ? ` · ${scoreData.songArtist}` : ""}
             </p>
           </div>
 
           <div className="text-center mb-8">
-            <div className="text-7xl md:text-8xl font-black text-purple-700 dark:text-purple-200 leading-none">
+            <div className="text-7xl md:text-8xl font-black text-primary leading-none">
               {scoreData.score}
             </div>
-            <p className="text-xl font-bold text-pink-600 dark:text-pink-300 mt-2">{scoreLabel}</p>
+            <p className="text-xl font-bold text-secondary mt-2">{scoreLabel}</p>
+            {isRecord ? (
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="mt-2 inline-flex items-center rounded-full bg-primary/15 px-3 py-1 text-sm font-semibold text-primary"
+              >
+                Novo recorde pessoal ✨
+              </motion.p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -118,7 +294,7 @@ export default function ScoreDashboard() {
             </div>
           </div>
 
-          <div className="text-center text-sm text-gray-600 dark:text-gray-300">
+          <div className="text-center text-sm text-muted-foreground">
             Retornando para a lista em {countdown}s...
           </div>
         </Card>

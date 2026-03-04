@@ -8,17 +8,34 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 
+const injectAnalyticsIfConfigured = () => {
+  const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT;
+  const analyticsWebsiteId = import.meta.env.VITE_ANALYTICS_WEBSITE_ID;
+
+  if (!analyticsEndpoint || !analyticsWebsiteId) {
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.defer = true;
+  script.src = `${analyticsEndpoint.replace(/\/$/, "")}/umami`;
+  script.dataset.websiteId = analyticsWebsiteId;
+  document.body.appendChild(script);
+};
+
+injectAnalyticsIfConfigured();
+
 const queryClient = new QueryClient();
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
-  if (typeof window === "undefined") return;
+  if (!globalThis.window) return;
 
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
 
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  globalThis.location.href = getLoginUrl();
 };
 
 queryClient.getQueryCache().subscribe(event => {
@@ -43,9 +60,12 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
+        const fetchInit = init
+          ? { ...init, credentials: "include" as const }
+          : { credentials: "include" as const };
+
         return globalThis.fetch(input, {
-          ...(init ?? {}),
-          credentials: "include",
+          ...fetchInit,
         });
       },
     }),
