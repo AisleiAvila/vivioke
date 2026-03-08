@@ -139,7 +139,7 @@ async function loadLocalSongsFromMedia(): Promise<LocalSong[]> {
     return _localSongsCache;
   }
 
-  const raw = fs.readFileSync(bdIniPath).toString("latin1");
+  const raw = fs.readFileSync(bdIniPath, "utf8").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r?\n/);
   const parsedSongs: LocalSong[] = [];
 

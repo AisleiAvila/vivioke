@@ -1,8 +1,8 @@
 import express, { type Express } from "express";
-import fs from "fs";
-import { type Server } from "http";
+import fs from "node:fs";
+import { type Server } from "node:http";
 import { nanoid } from "nanoid";
-import path from "path";
+import path from "node:path";
 
 export async function setupVite(app: Express, server: Server) {
   // Load Vite lazily so production builds don't require the vite package at runtime.

@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Search, Music, Loader2, ChevronLeft, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 type SortField = "code" | "title" | "artist";
 type SortDirection = "asc" | "desc";
 
 export default function SongList() {
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("code");
@@ -125,6 +126,10 @@ export default function SongList() {
     setSortDirection("asc");
   };
 
+  const navigateToSong = (songId: number) => {
+    setLocation(`/player/${songId}`);
+  };
+
   const renderSortIcon = (field: SortField) => {
     if (sortField !== field) {
       return <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />;
@@ -220,19 +225,36 @@ export default function SongList() {
         {/* Loading State */}
         {isLoading && !songs.length && (
           <Card className="vivioke-surface overflow-hidden p-0" aria-busy="true" aria-live="polite">
-            <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-primary/14 text-sm font-bold text-foreground">
-              <span>Codigo</span>
-              <span>Musica</span>
-              <span>Artista</span>
-            </div>
-            <div className="divide-y divide-border">
-              {skeletonRows.map((rowId) => (
-                <div key={rowId} className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 items-center">
-                  <div className="h-4 w-16 rounded bg-muted animate-pulse" />
-                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
-                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed border-collapse">
+                <colgroup>
+                  <col className="w-[110px]" />
+                  <col />
+                  <col />
+                </colgroup>
+                <thead className="bg-primary/14 text-sm font-bold text-foreground">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 text-left">Codigo</th>
+                    <th scope="col" className="px-4 py-3 text-left">Musica</th>
+                    <th scope="col" className="px-4 py-3 text-left">Artista</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {skeletonRows.map((rowId) => (
+                    <tr key={rowId} className="border-t border-border">
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </Card>
         )}
@@ -240,39 +262,59 @@ export default function SongList() {
         {/* Songs List */}
         {!isLoading && filteredSongs.length > 0 && (
           <Card className="vivioke-surface overflow-hidden">
-            <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-primary/14 text-sm font-bold text-foreground">
-              <div role="columnheader" aria-sort={getAriaSort("code")}>
-                <button type="button" className={getSortHeaderClassName("code")} onClick={() => handleSortChange("code")}>
-                  <span>Código</span>
-                  {renderSortIcon("code")}
-                </button>
-              </div>
-              <div role="columnheader" aria-sort={getAriaSort("title")}>
-                <button type="button" className={getSortHeaderClassName("title")} onClick={() => handleSortChange("title")}>
-                  <span>Música</span>
-                  {renderSortIcon("title")}
-                </button>
-              </div>
-              <div role="columnheader" aria-sort={getAriaSort("artist")}>
-                <button type="button" className={getSortHeaderClassName("artist")} onClick={() => handleSortChange("artist")}>
-                  <span>Artista</span>
-                  {renderSortIcon("artist")}
-                </button>
-              </div>
-            </div>
-
-            <div className="divide-y divide-border">
-              {paginatedSongs.map((song) => (
-                <Link key={song.id} href={`/player/${song.id}`}>
-                  <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 items-center hover:bg-accent/25 transition-colors cursor-pointer">
-                    <span className="font-mono text-sm text-primary">
-                      {extractSongNumber(song.instrumentalUrl, song.id)}
-                    </span>
-                    <span className="text-foreground truncate">{song.title}</span>
-                    <span className="text-foreground truncate">{song.artist}</span>
-                  </div>
-                </Link>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed border-collapse">
+                <colgroup>
+                  <col className="w-[110px]" />
+                  <col />
+                  <col />
+                </colgroup>
+                <thead className="bg-primary/14 text-sm font-bold text-foreground">
+                  <tr>
+                    <th scope="col" aria-sort={getAriaSort("code")} className="px-4 py-3 text-left">
+                      <button type="button" className={getSortHeaderClassName("code")} onClick={() => handleSortChange("code")}>
+                        <span>Código</span>
+                        {renderSortIcon("code")}
+                      </button>
+                    </th>
+                    <th scope="col" aria-sort={getAriaSort("title")} className="px-4 py-3 text-left">
+                      <button type="button" className={getSortHeaderClassName("title")} onClick={() => handleSortChange("title")}>
+                        <span>Música</span>
+                        {renderSortIcon("title")}
+                      </button>
+                    </th>
+                    <th scope="col" aria-sort={getAriaSort("artist")} className="px-4 py-3 text-left">
+                      <button type="button" className={getSortHeaderClassName("artist")} onClick={() => handleSortChange("artist")}>
+                        <span>Artista</span>
+                        {renderSortIcon("artist")}
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedSongs.map((song) => (
+                    <tr
+                      key={song.id}
+                      tabIndex={0}
+                      className="cursor-pointer border-t border-border transition-colors hover:bg-accent/25 focus-visible:bg-accent/25 focus-visible:outline-none"
+                      onClick={() => navigateToSong(song.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          navigateToSong(song.id);
+                        }
+                      }}
+                      aria-label={`Abrir musica ${song.title} de ${song.artist}`}
+                    >
+                      <td className="px-4 py-3 font-mono text-sm text-primary">
+                        {extractSongNumber(song.instrumentalUrl, song.id)}
+                      </td>
+                      <td className="px-4 py-3 text-foreground truncate">{song.title}</td>
+                      <td className="px-4 py-3 text-foreground truncate">{song.artist}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <div className="flex items-center justify-between px-4 py-3 border-t border-border">
