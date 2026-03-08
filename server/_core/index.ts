@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -32,11 +33,21 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  const localMediaDir = path.resolve(process.cwd(), "media");
+  const preferredMediaDir = process.env.VIVIOKE_MEDIA_DIR
+    ? path.resolve(process.env.VIVIOKE_MEDIA_DIR)
+    : path.resolve(process.cwd(), "media");
 
-  if (!fs.existsSync(localMediaDir)) {
+  let localMediaDir = preferredMediaDir;
+  try {
+    if (!fs.existsSync(localMediaDir)) {
+      fs.mkdirSync(localMediaDir, { recursive: true });
+      console.log(`[Media] Created local media directory at ${localMediaDir}`);
+    }
+  } catch (error) {
+    localMediaDir = path.join(os.tmpdir(), "vivioke-media");
     fs.mkdirSync(localMediaDir, { recursive: true });
-    console.log(`[Media] Created local media directory at ${localMediaDir}`);
+    console.warn(`[Media] Fallback media directory: ${localMediaDir}`);
+    console.warn("[Media] Original media directory error:", error);
   }
 
   app.use("/media", express.static(localMediaDir));

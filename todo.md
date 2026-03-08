@@ -1,123 +1,110 @@
-# Vivioke - Project TODO
+# Vivioke — Backlog Atualizado
 
-## Phase 1: Architecture & Database Design
-- [x] Design database schema (songs, lyrics, performances, users)
-- [x] Create LRC parser utility
-- [x] Design audio processing pipeline
-- [x] Plan scoring algorithm
+## ✅ Entregue recentemente
 
-## Phase 2: Backend Setup
-- [x] Create database tables and migrations
-- [x] Implement song management APIs (list, search, get details)
-- [x] Implement lyrics/LRC APIs
-- [x] Create performance recording endpoints
-- [x] Implement scoring calculation logic
-- [ ] Add tests for backend APIs
+### Produto e UX
 
-## Phase 3: Frontend - Welcome & Navigation
-- [x] Design welcome screen with musical theme
-- [x] Create colorful, playful UI components
-- [x] Implement main navigation
-- [x] Create home/dashboard page
-- [x] Add responsive design for desktop and web
+- [x] Tema visual festivo global (cores vivas + fundos animados)
+- [x] Transições de rota com slide/fade
+- [x] Efeitos de celebração (confete/light burst) no resultado
+- [x] Fundo com artistas (caricaturas PNG) com rotação automática
+- [x] Camada translúcida para manter imagem de fundo visível com legibilidade
 
-## Phase 4: Frontend - Music Selection
-- [x] Create music list component
-- [x] Implement search functionality
-- [x] Add filtering and sorting
-- [x] Create music detail view
-- [ ] Add music preview capability
+### Fluxo de música e pontuação
 
-## Phase 5: Frontend - Player & Lyrics Display
-- [x] Create audio player component
-- [x] Implement LRC parser in frontend
-- [x] Create synchronized lyrics display
-- [x] Add real-time lyric highlighting
-- [x] Implement playback controls
+- [x] Lista com colunas na ordem: Código, Música, Artista
+- [x] Ordenação por todas as colunas da lista
+- [x] Indicador visual da coluna/direção de ordenação
+- [x] Exibir tela de pontuação imediatamente ao fim do vídeo
+- [x] Contador animado de pontos com som a cada incremento
+- [x] Ajuste de velocidade da contagem para efeito dramático
 
-## Phase 6: Audio Capture & Microphone
-- [ ] Implement getUserMedia integration
-- [ ] Create microphone permission handling
-- [ ] Add audio recording capability
-- [ ] Implement audio level visualization
-- [ ] Add microphone status indicator
+### Base técnica
 
-## Phase 7: Pitch Detection & Analysis
-- [ ] Implement Web Audio API setup
-- [ ] Create pitch detection algorithm (autocorrelation)
-- [ ] Add real-time pitch display
-- [ ] Implement frequency analysis
-- [ ] Add pitch visualization
+- [x] Parsing de músicas via `media/BD.ini` com validação de `.mp4`
+- [x] URL de mídia com `encodeURIComponent` para nomes com caracteres especiais
+- [x] Ajustes no carregamento de analytics para evitar placeholders inválidos
 
-## Phase 8: Scoring System
-- [ ] Implement pitch comparison logic
-- [ ] Create scoring algorithm
-- [ ] Add timing accuracy calculation
-- [ ] Implement note duration analysis
-- [ ] Add consistency metrics
+---
 
-## Phase 9: Results Screen
-- [ ] Design results/score display
-- [ ] Create performance analytics visualization
-- [ ] Add detailed feedback on performance
-- [ ] Implement replay option
-- [ ] Add share/save performance option
+## 🚀 Prioridade Alta (próximos passos)
 
-## Phase 10: Integration & Testing
-- [ ] Integrate all components
-- [ ] Test end-to-end flow
-- [ ] Optimize synchronization
-- [ ] Performance testing
-- [ ] Cross-browser testing
+### 1) Estabilidade de ambiente e execução
 
-## Phase 11: Polish & Deployment
-- [ ] Add animations and transitions
-- [ ] Implement error handling
-- [ ] Add loading states
-- [ ] Optimize for mobile
-- [ ] Create deployment documentation
+- [ ] Validar variáveis de ambiente com schema (startup check)
+- [ ] Criar modo degradado local para OAuth (sem bloquear `npm run start`)
+- [ ] Exibir mensagem amigável na UI quando autenticação externa não estiver configurada
 
-## Phase 12: Documentation
-- [ ] Write technical documentation
-- [ ] Create user guide
-- [ ] Document API endpoints
-- [ ] Create development roadmap
-- [ ] Add troubleshooting guide
+### 2) Segurança e robustez backend
 
+- [ ] Adicionar `helmet` e `express-rate-limit`
+- [ ] Ajustar limites de payload por rota (evitar `50mb` global)
+- [ ] Padronizar tratamento de erros da API (payload consistente)
 
-## Phase 6: Pitch Detection Implementation
-- [x] Create pitch detection utility with autocorrelation algorithm
-- [x] Implement Web Audio API integration
-- [x] Add real-time pitch analysis
-- [x] Create pitch visualization component
-- [x] Add frequency-to-note conversion
-- [x] Implement pitch smoothing and stability detection
+### 3) Persistência de performance
 
-## Phase 7: Voice Analysis & Scoring
-- [ ] Compare user pitch with expected pitch
-- [ ] Calculate pitch accuracy percentage
-- [ ] Implement timing accuracy detection
-- [ ] Create note consistency scoring
-- [ ] Add dynamic range analysis
-- [ ] Implement overall performance scoring
+- [ ] Garantir gravação da performance ao final da música (com retry/idempotência)
+- [ ] Exibir feedback de sucesso/falha de gravação
+- [ ] Salvar histórico de melhores pontuações por música/usuário
 
-## Phase 8: Results Screen
-- [ ] Design results display with scores
-- [ ] Create performance analytics visualization
-- [ ] Add detailed feedback on singing quality
-- [ ] Implement replay option
-- [ ] Add share/save performance option
+---
 
-## Phase 9: Testing & Optimization
-- [ ] Write unit tests for pitch detection
-- [ ] Test end-to-end singing flow
-- [ ] Optimize audio processing performance
-- [ ] Test on different browsers
-- [ ] Optimize for mobile devices
+## ⚡ Prioridade Média
 
-## Phase 10: Documentation & Deployment
-- [ ] Write technical documentation
-- [ ] Create user guide
-- [ ] Document API endpoints
-- [ ] Create development roadmap
-- [ ] Prepare for deployment
+### 4) Performance frontend
+
+- [ ] Implementar code splitting por rota para reduzir bundle inicial
+- [ ] Otimizar carregamento de vídeo e assets visuais
+- [ ] Melhorar estratégia de cache de arquivos estáticos
+
+### 5) Evolução da tela de músicas
+
+- [ ] Mover paginação/ordenação para backend (escala)
+- [ ] Adicionar preview rápido de música (trecho curto)
+- [ ] Melhorar feedback de busca vazia com sugestões
+
+### 6) Áudio e pontuação
+
+- [ ] Refinar algoritmo de score por estabilidade/rítmica
+- [ ] Ajustar sensibilidade por perfil de voz
+- [ ] Adicionar indicadores de latência e qualidade de captura
+
+---
+
+## 🧪 Qualidade e testes
+
+### 7) Cobertura de testes
+
+- [ ] Testes de integração para rotas tRPC principais
+- [ ] Testes de fluxo E2E: selecionar música → cantar → pontuar
+- [ ] Testes de regressão para score animado e redirecionamento ao fim do vídeo
+
+### 8) Pipeline de qualidade
+
+- [ ] Adicionar script de lint no `package.json`
+- [ ] Incluir cobertura de testes no CI
+- [ ] Definir gates mínimos (build + test + lint)
+
+---
+
+## 📱 Acessibilidade e produto
+
+### 9) Acessibilidade
+
+- [ ] Melhorar contraste dinâmico sobre fundos com imagem
+- [ ] Adicionar `aria-live` para contador de pontuação
+- [ ] Revisar navegação por teclado nas telas principais
+
+### 10) Métricas de uso
+
+- [ ] Instrumentar eventos (play, fim, score, erros de microfone)
+- [ ] Criar painel básico de métricas de jornada
+- [ ] Monitorar taxa de abandono por etapa
+
+---
+
+## 📘 Documentação
+
+- [ ] Atualizar README com setup local completo (incluindo OAuth opcional)
+- [ ] Documentar variáveis de ambiente obrigatórias e opcionais
+- [ ] Publicar guia de troubleshooting (porta, cache, mídia, auth)

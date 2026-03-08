@@ -29,9 +29,9 @@ const GET_USER_INFO_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfo`;
 const GET_USER_INFO_WITH_JWT_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserInfoWithJwt`;
 
 class OAuthService {
-  constructor(private client: ReturnType<typeof axios.create>) {
+  constructor(private readonly client: ReturnType<typeof axios.create>) {
     console.log("[OAuth] Initialized with baseURL:", ENV.oAuthServerUrl);
-    if (!ENV.oAuthServerUrl) {
+    if (!ENV.oAuthServerUrl && !ENV.localAuthEnabled) {
       console.error(
         "[OAuth] ERROR: OAUTH_SERVER_URL is not configured! Set OAUTH_SERVER_URL environment variable."
       );
@@ -89,6 +89,40 @@ class SDKServer {
   constructor(client: AxiosInstance = createOAuthHttpClient()) {
     this.client = client;
     this.oauthService = new OAuthService(this.client);
+  }
+
+  private async getOrCreateLocalDesktopUser(): Promise<User> {
+    const localOpenId = "vivioke-local-desktop";
+    const fallbackNow = new Date();
+
+    try {
+      await db.upsertUser({
+        openId: localOpenId,
+        name: "Vivioke Local User",
+        loginMethod: "local",
+        lastSignedIn: fallbackNow,
+      });
+
+      const persistedUser = await db.getUserByOpenId(localOpenId);
+      if (persistedUser) {
+        return persistedUser;
+      }
+    } catch (error) {
+      console.warn("[Auth] Local desktop user persistence unavailable:", String(error));
+    }
+
+    // Fallback user keeps protected procedures available when DB is offline.
+    return {
+      id: 1,
+      openId: localOpenId,
+      name: "Vivioke Local User",
+      email: null,
+      loginMethod: "local",
+      role: "admin",
+      createdAt: fallbackNow,
+      updatedAt: fallbackNow,
+      lastSignedIn: fallbackNow,
+    };
   }
 
   private deriveLoginMethod(
@@ -257,6 +291,10 @@ class SDKServer {
   }
 
   async authenticateRequest(req: Request): Promise<User> {
+    if (ENV.localAuthEnabled) {
+      return this.getOrCreateLocalDesktopUser();
+    }
+
     // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);

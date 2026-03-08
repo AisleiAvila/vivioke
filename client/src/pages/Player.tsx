@@ -31,7 +31,7 @@ export default function Player() {
   const pitchAccuraciesRef = useRef<number[]>([]);
   const pitchConfidenceRef = useRef<number[]>([]);
   const pitchAmplitudeRef = useRef<number[]>([]);
-  const controlsHideTimeoutRef = useRef<number | null>(null);
+  const controlsHideTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
   // Fetch song data
   const { data: song, isLoading: isLoadingSong } = trpc.songs.getById.useQuery({

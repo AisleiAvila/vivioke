@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "organization": "Local Workspace Skills",
+  "date": "March 2026",
+  "abstract": "Frontend patterns for React/Vite: robust UI states, async interactions, error feedback, accessibility, and responsive behavior.",
+  "references": [
+    "https://react.dev",
+    "https://vite.dev",
+    "https://www.w3.org/WAI/standards-guidelines/wcag/"
+  ]
+}

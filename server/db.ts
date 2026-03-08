@@ -107,7 +107,9 @@ type LocalSong = {
 };
 
 async function loadLocalSongsFromMedia(): Promise<LocalSong[]> {
-  const mediaDir = path.resolve(process.cwd(), "media");
+  const mediaDir = process.env.VIVIOKE_MEDIA_DIR
+    ? path.resolve(process.env.VIVIOKE_MEDIA_DIR)
+    : path.resolve(process.cwd(), "media");
   const bdIniPath = path.join(mediaDir, "BD.ini");
 
   if (!fs.existsSync(mediaDir) || !fs.existsSync(bdIniPath)) {

@@ -147,7 +147,7 @@ export default function ScoreDashboard() {
     const minTickMs = 14;
     const maxTickMs = 62;
     let currentValue = 0;
-    let timeoutId: number | null = null;
+    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
 
     setDisplayScore(0);
 

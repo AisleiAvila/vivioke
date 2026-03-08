@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Search, Music, Loader2, ChevronLeft, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Link } from "wouter";
 
@@ -15,6 +16,10 @@ export default function SongList() {
   const [sortField, setSortField] = useState<SortField>("code");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const pageSize = 10;
+  const skeletonRows = useMemo(
+    () => Array.from({ length: pageSize }, (_, rowNumber) => `song-loading-row-${rowNumber + 1}`),
+    [pageSize]
+  );
 
   const normalizeText = (value: string) =>
     value
@@ -38,7 +43,14 @@ export default function SongList() {
   };
 
   // Fetch all songs
-  const { data: songs = [], isLoading: isLoadingSongs } = trpc.songs.list.useQuery();
+  const {
+    data: songs = [],
+    isLoading: isLoadingSongs,
+    isFetching: isFetchingSongs,
+    isError: isSongsError,
+    error: songsError,
+    refetch: refetchSongs,
+  } = trpc.songs.list.useQuery();
 
   // Filter and sort results
   const filteredSongs = useMemo(() => {
@@ -87,6 +99,7 @@ export default function SongList() {
   const totalPages = Math.max(1, Math.ceil(filteredSongs.length / pageSize));
 
   const isLoading = isLoadingSongs;
+  const isRefreshing = isFetchingSongs && !isLoadingSongs;
   const hasNoSongs = songs.length === 0;
 
   const handleSearchChange = (value: string) => {
@@ -141,6 +154,14 @@ export default function SongList() {
     return sortDirection === "asc" ? "ascending" : "descending";
   };
 
+  const getSongsErrorMessage = () => {
+    if (!songsError) {
+      return "Nao foi possivel carregar as musicas no momento.";
+    }
+
+    return songsError.message || "Nao foi possivel carregar as musicas no momento.";
+  };
+
   return (
     <div className="min-h-screen vivioke-party-bg py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -173,47 +194,71 @@ export default function SongList() {
                 className="pl-10 py-2 text-base rounded-lg border-input focus-visible:ring-ring"
               />
             </div>
+
+            {isRefreshing && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Atualizando lista de musicas...
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Error State */}
+        {isSongsError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Erro ao carregar musicas</AlertTitle>
+            <AlertDescription>
+              <p>{getSongsErrorMessage()}</p>
+              <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => refetchSongs()}>
+                Tentar novamente
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-600 dark:text-purple-400" />
-          </div>
+        {isLoading && !songs.length && (
+          <Card className="vivioke-surface overflow-hidden p-0" aria-busy="true" aria-live="polite">
+            <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-primary/14 text-sm font-bold text-foreground">
+              <span>Codigo</span>
+              <span>Musica</span>
+              <span>Artista</span>
+            </div>
+            <div className="divide-y divide-border">
+              {skeletonRows.map((rowId) => (
+                <div key={rowId} className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 items-center">
+                  <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </Card>
         )}
 
         {/* Songs List */}
         {!isLoading && filteredSongs.length > 0 && (
           <Card className="vivioke-surface overflow-hidden">
             <div className="grid grid-cols-[110px_1fr_1fr] gap-4 px-4 py-3 bg-primary/14 text-sm font-bold text-foreground">
-              <button
-                type="button"
-                className={getSortHeaderClassName("code")}
-                onClick={() => handleSortChange("code")}
-                aria-sort={getAriaSort("code")}
-              >
-                <span>Código</span>
-                {renderSortIcon("code")}
-              </button>
-              <button
-                type="button"
-                className={getSortHeaderClassName("title")}
-                onClick={() => handleSortChange("title")}
-                aria-sort={getAriaSort("title")}
-              >
-                <span>Música</span>
-                {renderSortIcon("title")}
-              </button>
-              <button
-                type="button"
-                className={getSortHeaderClassName("artist")}
-                onClick={() => handleSortChange("artist")}
-                aria-sort={getAriaSort("artist")}
-              >
-                <span>Artista</span>
-                {renderSortIcon("artist")}
-              </button>
+              <div role="columnheader" aria-sort={getAriaSort("code")}>
+                <button type="button" className={getSortHeaderClassName("code")} onClick={() => handleSortChange("code")}>
+                  <span>Código</span>
+                  {renderSortIcon("code")}
+                </button>
+              </div>
+              <div role="columnheader" aria-sort={getAriaSort("title")}>
+                <button type="button" className={getSortHeaderClassName("title")} onClick={() => handleSortChange("title")}>
+                  <span>Música</span>
+                  {renderSortIcon("title")}
+                </button>
+              </div>
+              <div role="columnheader" aria-sort={getAriaSort("artist")}>
+                <button type="button" className={getSortHeaderClassName("artist")} onClick={() => handleSortChange("artist")}>
+                  <span>Artista</span>
+                  {renderSortIcon("artist")}
+                </button>
+              </div>
             </div>
 
             <div className="divide-y divide-border">

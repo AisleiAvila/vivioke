@@ -146,9 +146,7 @@ async function main() {
   console.log(`Seed finalizado. ${seedSongs.length} músicas garantidas na base.`);
 }
 
-try {
-  await main();
-} catch (error) {
+void main().catch((error) => {
   console.error("Erro ao executar seed:", error);
   process.exit(1);
-}
+});

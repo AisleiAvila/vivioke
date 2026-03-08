@@ -67,7 +67,7 @@ function App() {
 
   useEffect(() => {
     let isCancelled = false;
-    let rotationTimer: number | null = null;
+    let rotationTimer: ReturnType<typeof globalThis.setInterval> | null = null;
 
     const setupArtistBackgroundRotation = async () => {
       const availableImages = await getAvailableArtistBackgrounds();
