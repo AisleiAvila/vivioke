@@ -46,6 +46,8 @@ Saída principal:
 - O menu da janela fica oculto por padrão.
 - O instalador NSIS está configurado para criar atalho na Área de Trabalho e no Menu Iniciar.
 - O script `criar-atalho-vivioke.ps1` agora prioriza abrir o app desktop instalado; se não encontrar, cai para modo local (`npm run start`).
+- As pastas `release/`, `release-fallback/` e `release-media/` são artefatos locais de empacotamento e não devem ser versionadas no Git.
+- Para publicar o instalador `.exe`, gere o arquivo localmente com `npm run electron:dist` e anexe o resultado em GitHub Releases ou em outro canal de distribuição de binários.
 
 ## Arquivos de configuração
 
