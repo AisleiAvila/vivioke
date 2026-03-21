@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,13 @@ type SortDirection = "asc" | "desc";
 export default function SongList() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 250);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery]);
   const [sortField, setSortField] = useState<SortField>("code");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const pageSize = 10;
@@ -57,8 +64,8 @@ export default function SongList() {
   const filteredSongs = useMemo(() => {
     let results = songs;
 
-    if (searchQuery.trim().length > 0) {
-      const normalizedQuery = normalizeText(searchQuery);
+    if (debouncedSearchQuery.trim().length > 0) {
+      const normalizedQuery = normalizeText(debouncedSearchQuery);
       results = results.filter((song) => {
         const title = normalizeText(song.title);
         const artist = normalizeText(song.artist);
@@ -90,7 +97,7 @@ export default function SongList() {
       const bArtist = normalizeText(b.artist);
       return aArtist.localeCompare(bArtist) * directionMultiplier;
     });
-  }, [songs, searchQuery, sortField, sortDirection]);
+  }, [songs, debouncedSearchQuery, sortField, sortDirection]);
 
   const paginatedSongs = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -105,7 +112,6 @@ export default function SongList() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    setCurrentPage(1);
   };
 
   const handlePreviousPage = () => {

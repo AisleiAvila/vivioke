@@ -10,6 +10,22 @@ function getQueryParam(req: Request, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+/** Validate that the OAuth state parameter decodes to a safe redirect URI */
+function validateOAuthState(state: string, requestOrigin: string): string | null {
+  try {
+    const decoded = atob(state);
+    // The state must be a redirect URI pointing back to our own origin
+    const url = new URL(decoded);
+    const originUrl = new URL(requestOrigin);
+    if (url.hostname !== originUrl.hostname) {
+      return null;
+    }
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
 export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     if (ENV.localAuthEnabled) {
@@ -22,6 +38,14 @@ export function registerOAuthRoutes(app: Express) {
 
     if (!code || !state) {
       res.status(400).json({ error: "code and state are required" });
+      return;
+    }
+
+    // Validate state parameter to prevent CSRF and open redirect
+    const requestOrigin = `${req.protocol}://${req.get("host")}`;
+    const decodedRedirect = validateOAuthState(state, requestOrigin);
+    if (!decodedRedirect) {
+      res.status(400).json({ error: "Invalid state parameter" });
       return;
     }
 

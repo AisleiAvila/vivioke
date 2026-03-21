@@ -13,6 +13,21 @@ import { ENV } from "./env";
 // Configuration
 // ============================================================================
 
+/** Allowed Google Maps API endpoints to prevent arbitrary endpoint access */
+const ALLOWED_MAP_ENDPOINTS = new Set([
+  "/maps/api/geocode/json",
+  "/maps/api/directions/json",
+  "/maps/api/distancematrix/json",
+  "/maps/api/place/textsearch/json",
+  "/maps/api/place/nearbysearch/json",
+  "/maps/api/place/details/json",
+  "/maps/api/elevation/json",
+  "/maps/api/timezone/json",
+  "/v1/snapToRoads",
+  "/v1/nearestRoads",
+  "/v1/speedLimits",
+]);
+
 type MapsConfig = {
   baseUrl: string;
   apiKey: string;
@@ -56,6 +71,13 @@ export async function makeRequest<T = unknown>(
   params: Record<string, unknown> = {},
   options: RequestOptions = {}
 ): Promise<T> {
+  // Validate endpoint against whitelist
+  if (!ALLOWED_MAP_ENDPOINTS.has(endpoint)) {
+    throw new Error(
+      `Maps API endpoint '${endpoint}' is not allowed. Allowed endpoints: ${Array.from(ALLOWED_MAP_ENDPOINTS).join(", ")}`
+    );
+  }
+
   const { baseUrl, apiKey } = getMapsConfig();
 
   // Construct full URL: baseUrl + /v1/maps/proxy + endpoint

@@ -163,7 +163,8 @@ export class AudioAnalyzer {
    */
   async initialize(stream: MediaStream): Promise<void> {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.audioContext = new AudioCtx();
     }
 
     // Resume audio context if suspended (required by some browsers)
@@ -180,7 +181,7 @@ export class AudioAnalyzer {
 
     this.mediaStreamSource.connect(this.analyser);
 
-    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount) as any;
+    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
     this.floatData = new Float32Array(this.analyser.fftSize);
   }
 
@@ -218,13 +219,13 @@ export class AudioAnalyzer {
     }
 
     // Get time-domain data
-    this.analyser.getFloatTimeDomainData(this.floatData as any);
+    this.analyser.getFloatTimeDomainData(this.floatData);
 
     // Detect pitch using autocorrelation
-    const frequency = autoCorrelate(this.floatData as any, this.audioContext!.sampleRate);
+    const frequency = autoCorrelate(this.floatData, this.audioContext!.sampleRate);
 
     // Get amplitude
-    this.analyser.getByteFrequencyData(this.dataArray! as any);
+    this.analyser.getByteFrequencyData(this.dataArray!);
     const amplitude = this.getAmplitude();
 
     // Process detected frequency
@@ -283,7 +284,7 @@ export class AudioAnalyzer {
     let sum = 0;
     const length = this.dataArray.length;
     for (let i = 0; i < length; i++) {
-      sum += (this.dataArray as any)[i];
+      sum += this.dataArray[i];
     }
 
     return sum / (length * 255);

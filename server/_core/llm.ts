@@ -216,7 +216,7 @@ const resolveApiUrl = () =>
 
 const assertApiKey = () => {
   if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+    throw new Error("BUILT_IN_FORGE_API_KEY is not configured for LLM invocation");
   }
 };
 
@@ -279,8 +279,12 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     response_format,
   } = params;
 
+  const LLM_MODEL = process.env.LLM_MODEL || "gemini-2.5-flash";
+  const LLM_MAX_TOKENS = Number(process.env.LLM_MAX_TOKENS) || 32768;
+  const LLM_THINKING_BUDGET = Number(process.env.LLM_THINKING_BUDGET) || 128;
+
   const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
+    model: LLM_MODEL,
     messages: messages.map(normalizeMessage),
   };
 
@@ -296,9 +300,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
+  payload.max_tokens = LLM_MAX_TOKENS
   payload.thinking = {
-    "budget_tokens": 128
+    "budget_tokens": LLM_THINKING_BUDGET
   }
 
   const normalizedResponseFormat = normalizeResponseFormat({

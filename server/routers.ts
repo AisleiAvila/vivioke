@@ -24,18 +24,18 @@ export const appRouter = router({
       const { getAllSongs } = await import("./db");
       return await getAllSongs();
     }),
-    search: publicProcedure.input(z.object({ query: z.string() })).query(async ({ input }) => {
+    search: publicProcedure.input(z.object({ query: z.string().min(1).max(200) })).query(async ({ input }) => {
       const { searchSongs } = await import("./db");
       return await searchSongs(input.query);
     }),
-    getById: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => {
+    getById: publicProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
       const { getSongById } = await import("./db");
       return await getSongById(input.id);
     }),
   }),
   lyrics: router({
     getBySongId: publicProcedure
-      .input(z.object({ songId: z.number(), language: z.string().default("pt") }))
+      .input(z.object({ songId: z.number().int().positive(), language: z.string().min(1).max(10).default("pt") }))
       .query(async ({ input }) => {
         const { getLyricsBySongId } = await import("./db");
         return await getLyricsBySongId(input.songId, input.language);
@@ -45,14 +45,14 @@ export const appRouter = router({
     create: protectedProcedure
       .input(
         z.object({
-          songId: z.number(),
+          songId: z.number().int().positive(),
           score: z.number().min(0).max(100),
-          pitchAccuracy: z.number().optional(),
-          timingAccuracy: z.number().optional(),
-          consistencyScore: z.number().optional(),
-          recordingUrl: z.string().optional(),
-          duration: z.number().optional(),
-          notes: z.string().optional(),
+          pitchAccuracy: z.number().min(0).max(100).optional(),
+          timingAccuracy: z.number().min(0).max(100).optional(),
+          consistencyScore: z.number().min(0).max(100).optional(),
+          recordingUrl: z.string().url().max(2048).optional(),
+          duration: z.number().min(0).max(86400).optional(),
+          notes: z.string().max(5000).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -74,13 +74,13 @@ export const appRouter = router({
       return await getUserPerformances(ctx.user.id);
     }),
     getSongPerformances: publicProcedure
-      .input(z.object({ songId: z.number() }))
+      .input(z.object({ songId: z.number().int().positive() }))
       .query(async ({ input }) => {
         const { getSongPerformances } = await import("./db");
         return await getSongPerformances(input.songId);
       }),
     getById: publicProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => {
         const { getPerformanceById } = await import("./db");
         return await getPerformanceById(input.id);

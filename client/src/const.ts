@@ -2,6 +2,17 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
 export const PARTY_BACKGROUND_THEME = "neon" as const;
 
+// Player constants
+export const PLAYER_CONTROLS_HIDE_DELAY_MS = 2500;
+
+// ScoreDashboard constants
+export const PARTY_MODE_DURATION_MS = 4600;
+export const SCORE_REDIRECT_DELAY_MS = 5000;
+export const BEST_SCORE_KEY = "vivioke-best-score";
+
+// Background rotation
+export const BACKGROUND_ROTATION_INTERVAL_MS = 16000;
+
 export const ARTIST_BACKGROUND_IMAGES = [
   "/artists/noel_rosa_caricature.png",
   "/artists/carmen_miranda_caricature.png",

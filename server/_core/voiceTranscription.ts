@@ -27,6 +27,36 @@
  */
 import { ENV } from "./env";
 
+const ALLOWED_LANGUAGE_CODES = new Set([
+  'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh',
+  'ar', 'hi', 'nl', 'pl', 'tr', 'sv', 'da', 'no', 'fi',
+]);
+const MAX_TRANSCRIPTION_PROMPT_LENGTH = 500;
+
+/** Block URLs targeting private/internal networks */
+function isInternalUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    const hostname = url.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname === "[::1]" ||
+      hostname.endsWith(".local") ||
+      hostname.startsWith("127.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("169.254.") ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+      hostname === "metadata.google.internal"
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 export type TranscribeOptions = {
   audioUrl: string; // URL to the audio file (e.g., S3 URL)
   language?: string; // Optional: specify language code (e.g., "en", "es", "zh")
@@ -87,6 +117,29 @@ export async function transcribeAudio(
         error: "Voice transcription service authentication is missing",
         code: "SERVICE_ERROR",
         details: "BUILT_IN_FORGE_API_KEY is not set"
+      };
+    }
+
+    // Step 1b: Validate inputs (SSRF protection + input constraints)
+    if (isInternalUrl(options.audioUrl)) {
+      return {
+        error: "Audio URL pointing to internal/private networks is not allowed",
+        code: "INVALID_FORMAT",
+        details: "The provided audio URL targets a restricted network address"
+      };
+    }
+    if (options.language && !ALLOWED_LANGUAGE_CODES.has(options.language)) {
+      return {
+        error: "Unsupported language code",
+        code: "INVALID_FORMAT",
+        details: `Language '${options.language}' is not in the supported list`
+      };
+    }
+    if (options.prompt && options.prompt.length > MAX_TRANSCRIPTION_PROMPT_LENGTH) {
+      return {
+        error: "Prompt is too long",
+        code: "INVALID_FORMAT",
+        details: `Maximum prompt length is ${MAX_TRANSCRIPTION_PROMPT_LENGTH} characters`
       };
     }
 

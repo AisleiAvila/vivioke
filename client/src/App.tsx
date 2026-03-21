@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { ARTIST_BACKGROUND_IMAGES, PARTY_BACKGROUND_THEME } from "./const";
+import { ARTIST_BACKGROUND_IMAGES, BACKGROUND_ROTATION_INTERVAL_MS, PARTY_BACKGROUND_THEME } from "./const";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Welcome from "./pages/Welcome";
 import SongList from "./pages/SongList";
@@ -82,7 +82,7 @@ function App() {
       rotationTimer = globalThis.setInterval(() => {
         currentIndex = (currentIndex + 1) % availableImages.length;
         setArtistBackground(availableImages[currentIndex]);
-      }, 16000);
+      }, BACKGROUND_ROTATION_INTERVAL_MS);
     };
 
     void setupArtistBackgroundRotation();

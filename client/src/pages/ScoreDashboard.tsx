@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
+import { BEST_SCORE_KEY, PARTY_MODE_DURATION_MS, SCORE_REDIRECT_DELAY_MS } from "@/const";
+
+const prefersReducedMotion =
+  typeof globalThis.window !== "undefined"
+    ? globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    : false;
 
 type ScoreData = {
   score: number;
@@ -13,8 +19,6 @@ type ScoreData = {
 };
 
 const RESULT_EMOJIS = ["🎉", "🎊", "🎈", "🎵", "🎶", "✨", "🥳"];
-const BEST_SCORE_KEY = "vivioke-best-score";
-const PARTY_MODE_DURATION_MS = 4600;
 const LIGHT_BURST_BASE = [
   { size: 240, delay: 0, color: "bg-primary/40" },
   { size: 360, delay: 0.1, color: "bg-secondary/35" },
@@ -43,6 +47,11 @@ const SPARKLE_BASE = Array.from({ length: 18 }, (_, index) => ({
   size: index % 3 === 0 ? 7 : 5,
 }));
 
+/** Sanitize a string from URL params for safe rendering */
+function sanitizeText(input: string, maxLength: number = 200): string {
+  return input.slice(0, maxLength).replace(/[<>"'&]/g, "");
+}
+
 function parseScoreData(): ScoreData {
   if (globalThis.window === undefined) {
     return {
@@ -58,12 +67,12 @@ function parseScoreData(): ScoreData {
   const params = new URLSearchParams(globalThis.location.search);
 
   return {
-    score: Number.parseInt(params.get("score") ?? "0", 10) || 0,
+    score: Math.max(0, Math.min(100, Number.parseInt(params.get("score") ?? "0", 10) || 0)),
     samples: Number.parseInt(params.get("samples") ?? "0", 10) || 0,
     confidence: Number.parseInt(params.get("confidence") ?? "0", 10) || 0,
     volume: Number.parseInt(params.get("volume") ?? "0", 10) || 0,
-    songTitle: params.get("songTitle") ?? "",
-    songArtist: params.get("songArtist") ?? "",
+    songTitle: sanitizeText(params.get("songTitle") ?? ""),
+    songArtist: sanitizeText(params.get("songArtist") ?? ""),
   };
 }
 
@@ -188,7 +197,7 @@ export default function ScoreDashboard() {
 
     const timeoutId = globalThis.setTimeout(() => {
       setLocation("/songs");
-    }, 5000);
+    }, SCORE_REDIRECT_DELAY_MS);
 
     const intervalId = globalThis.setInterval(() => {
       setCountdown((seconds) => Math.max(0, seconds - 1));
@@ -245,7 +254,7 @@ export default function ScoreDashboard() {
   let sparkleRepeatCount = 0;
   let confettiRepeatCount = 0;
 
-  if (isPartyActive) {
+  if (isPartyActive && !prefersReducedMotion) {
     if (isRecord) {
       burstRepeatCount = 3;
       sparkleRepeatCount = 6;

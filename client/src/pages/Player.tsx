@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { ChevronLeft, Play, Pause, Volume2, Mic2, Loader2, StopCircle } from "lucide-react";
 import { msToTime } from "@/lib/lrcParser";
 import { AudioAnalyzer, PitchData, calculateSingingScore } from "@/lib/pitchDetection";
+import { PLAYER_CONTROLS_HIDE_DELAY_MS } from "@/const";
 
 type ScoreSummary = {
   score: number;
@@ -46,13 +47,21 @@ export default function Player() {
 
   const stopMicrophone = (shouldFinalizeScore: boolean) => {
     if (analyzerRef.current) {
-      analyzerRef.current.stop();
-      analyzerRef.current.close();
+      try {
+        analyzerRef.current.stop();
+        analyzerRef.current.close();
+      } catch (err) {
+        console.warn("Error cleaning up audio analyzer:", err);
+      }
       analyzerRef.current = null;
     }
 
     if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      try {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        console.warn("Error stopping media tracks:", err);
+      }
       mediaStreamRef.current = null;
     }
 
@@ -85,6 +94,10 @@ export default function Player() {
     } catch (error) {
       console.error("Microphone access denied:", error);
       setIsMicrophoneActive(false);
+      // Inform the user that microphone access was denied
+      if (error instanceof DOMException && error.name === "NotAllowedError") {
+        alert("Permissão de microfone negada. Ative o microfone nas configurações do navegador para usar o karaoke.");
+      }
     }
   };
 
@@ -178,7 +191,7 @@ export default function Player() {
 
     controlsHideTimeoutRef.current = globalThis.setTimeout(() => {
       setShowControls(false);
-    }, 2500);
+    }, PLAYER_CONTROLS_HIDE_DELAY_MS);
   };
 
   const revealControls = () => {
@@ -261,12 +274,16 @@ export default function Player() {
       clearControlsHideTimeout();
 
       if (analyzerRef.current) {
-        analyzerRef.current.stop();
-        analyzerRef.current.close();
+        try {
+          analyzerRef.current.stop();
+          analyzerRef.current.close();
+        } catch { /* ignore cleanup errors */ }
       }
 
       if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        try {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        } catch { /* ignore cleanup errors */ }
       }
     };
   }, []);
@@ -306,6 +323,7 @@ export default function Player() {
         onTouchStart={revealControls}
         preload="metadata"
         playsInline
+        aria-label={`Reproduzindo: ${song.title} - ${song.artist}`}
         className="absolute inset-0 w-full h-full object-cover object-[center_88%] bg-black"
       >
         <track

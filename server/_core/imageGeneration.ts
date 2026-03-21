@@ -18,6 +18,33 @@
 import { storagePut } from "server/storage";
 import { ENV } from "./env";
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const MAX_PROMPT_LENGTH = 2000;
+
+/** Block URLs targeting private/internal networks */
+function isInternalUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    const hostname = url.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname === "[::1]" ||
+      hostname.endsWith(".local") ||
+      hostname.startsWith("127.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("169.254.") ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+      hostname === "metadata.google.internal"
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 export type GenerateImageOptions = {
   prompt: string;
   originalImages?: Array<{
@@ -39,6 +66,23 @@ export async function generateImage(
   }
   if (!ENV.forgeApiKey) {
     throw new Error("BUILT_IN_FORGE_API_KEY is not configured");
+  }
+
+  // Validate prompt length
+  if (options.prompt.length > MAX_PROMPT_LENGTH) {
+    throw new Error(`Prompt exceeds maximum length of ${MAX_PROMPT_LENGTH} characters`);
+  }
+
+  // Validate image URLs (SSRF protection)
+  if (options.originalImages) {
+    for (const img of options.originalImages) {
+      if (img.url && isInternalUrl(img.url)) {
+        throw new Error("Image URLs pointing to internal/private networks are not allowed");
+      }
+      if (img.mimeType && !ALLOWED_IMAGE_MIME_TYPES.has(img.mimeType)) {
+        throw new Error(`Unsupported image MIME type: ${img.mimeType}`);
+      }
+    }
   }
 
   // Build the full URL by appending the service path to the base URL
